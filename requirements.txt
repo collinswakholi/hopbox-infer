@@ -1,0 +1,7 @@
+ultralytics==8.1.16
+torch
+numpy<2.0.0
+readQR
+colorcorrectionML
+easyocr
+opencv-python-headless

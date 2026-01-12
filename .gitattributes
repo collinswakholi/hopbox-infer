@@ -1,0 +1,5 @@
+# Git LFS tracking for large model files
+*.pt filter=lfs diff=lfs merge=lfs -text
+*.pth filter=lfs diff=lfs merge=lfs -text
+*.onnx filter=lfs diff=lfs merge=lfs -text
+*.torchscript filter=lfs diff=lfs merge=lfs -text

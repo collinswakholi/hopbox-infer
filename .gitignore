@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Data directories (not needed in repo)
+Data/
+Data_2/
+*_Results/
+
+# Jupyter Notebooks (keeping only inference code)
+*.ipynb
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Training and test files (keeping only inference)
+train_*.py
+*_test.py
+color_correction_test.py
+numba_cuda.py
+export_model.py
+Inference_test.py
+inference.py
+inference_multi_folder.ipynb
+
+# Utils folder (if not needed for inference)
+utils/
+
+# Results and outputs
+*.csv
+Hop_Inst_Seg/
+
+# OS
+Thumbs.db

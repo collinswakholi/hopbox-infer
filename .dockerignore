@@ -1,0 +1,45 @@
+# Ignore unnecessary files and folders
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Ignore data directories (users will mount their own)
+Data/
+Data_2/
+
+# Ignore notebooks and test files
+*.ipynb
+*_test.py
+color_correction_test.py
+numba_cuda.py
+train_YOLOv8_seg.py
+Inference_test.py
+inference.py
+export_model.py
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore results
+*_Results/
+*.csv
+
+# Keep only essential files:
+# - inference_final.py
+# - functions.py
+# - requirements.txt
+# - models/
+# - Dockerfile
+# - README_DOCKER.md
