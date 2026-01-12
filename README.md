@@ -96,6 +96,10 @@ The script generates:
 
 This repository uses GitHub Actions to automatically build and push Docker images to Docker Hub on every push to the main branch.
 
+## Docker Hub
+
+Pre-built image available at: `collins137/hopboxinfer:latest`
+
 ## License
 
 [Add your license here]
