@@ -5,13 +5,6 @@ on:
     branches:
       - main
       - master
-    paths:
-      - 'inference_final.py'
-      - 'functions.py'
-      - 'requirements.txt'
-      - 'Dockerfile'
-      - 'models/**'
-      - '.github/workflows/docker-push.yml'
 
 jobs:
   build-and-push:
