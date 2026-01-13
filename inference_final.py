@@ -16,7 +16,7 @@ def parse_arguments():
     
     # Paths
     parser.add_argument('--input-dir', type=str, required=True, help='Path to input directory containing images')
-    parser.add_argument('--model', type=str, default='models/best.pt', help='Path to .pt model file')
+    parser.add_argument('--model', type=str, default='/app/models/best.pt', help='Path to .pt model file (default: built-in model)')
     parser.add_argument('--output-dir', type=str, default=None, help='Path to save results (default: input_dir + "_Results")')
     
     # Inference settings

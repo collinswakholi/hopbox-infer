@@ -29,14 +29,15 @@ RUN chmod +x inference_final.py
 # These map to the arguments in inference_final.py
 ENV INPUT_DIR="/data/input"
 ENV OUTPUT_DIR="/data/output"
-ENV MODEL_PATH="models/best.pt"
-ENV BATCH_SIZE=4
-ENV CONF=0.58
-ENV IMGSZ=2048
+ENV MODEL_PATH="/app/models/best.pt"
+ENV BATCH_SIZE="4"
+ENV CONF="0.58"
+ENV IOU="0.75"
+ENV IMGSZ="2048"
 ENV DEVICE=""
 
 # Create directories for mounting volumes
 RUN mkdir -p /data/input /data/output
 
 # Entrypoint script effectively runs the python command with arguments mapped from env vars
-ENTRYPOINT ["/bin/bash", "-c", "python inference_final.py --input-dir \"${INPUT_DIR}\" --output-dir \"${OUTPUT_DIR}\" --model \"${MODEL_PATH}\" --batch-size \"${BATCH_SIZE}\" --conf \"${CONF}\" --imgsz \"${IMGSZ}\" --device \"${DEVICE}\""]
+ENTRYPOINT ["/bin/bash", "-c", "python inference_final.py --input-dir \"${INPUT_DIR}\" --output-dir \"${OUTPUT_DIR}\" --model \"${MODEL_PATH}\" --batch-size ${BATCH_SIZE} --conf ${CONF} --iou ${IOU} --imgsz ${IMGSZ} --device \"${DEVICE}\""]
