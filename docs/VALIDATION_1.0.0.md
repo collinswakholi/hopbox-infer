@@ -2,7 +2,7 @@
 
 This is a curated summary of local records from October 14-15, 2026. Private
 photos, SSH details, machine identifiers and raw endpoint logs are not published.
-The draft contains the tested binaries; publishing source/docs did not rebuild them.
+The release contains the tested binaries; publishing source/docs did not rebuild them.
 
 | Check | Result and scope |
 | --- | --- |

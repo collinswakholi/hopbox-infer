@@ -180,7 +180,7 @@ try {
     }
     # One clearly scoped CPU smoke after a GPU run also proves the standard
     # component switches devices without replacing the installation.
-    if ($Mode -eq 'GPU' -and $Batches -eq '1') {
+    if ($Mode -eq 'GPU') {
         $qaRecord.phase = 'CPU smoke after DirectML'; Save-Status
         $cpuOutput = Join-Path $resultRoot 'cpu-smoke'
         $cpuTimer = [Diagnostics.Stopwatch]::StartNew()

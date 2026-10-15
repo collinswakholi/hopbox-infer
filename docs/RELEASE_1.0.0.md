@@ -1,4 +1,4 @@
-# HopBox Infer 1.0.0 — draft
+# HopBox Infer 1.0.0
 
 Offline Windows x64 hop segmentation, chart color correction, QR/OCR and trait
 extraction by Collins Wakholi. Developed October 14, 2026.
@@ -37,5 +37,5 @@ The old Docker/PyTorch version is preserved at
 [`legacy-docker-2026-10-15`](https://github.com/collinswakholi/hopbox-infer/tree/legacy-docker-2026-10-15).
 Existing Docker images were not modified.
 
-This release is deliberately **draft** and is not marked Latest or published.
-The installer and portable ZIP are the exact previously tested artifacts.
+Published October 15, 2026 and marked Latest. The installer and portable ZIP
+are the exact previously tested artifacts.

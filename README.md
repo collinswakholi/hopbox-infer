@@ -13,9 +13,8 @@ scikit-image, Numba or Taichi.
 
 ## Download and install
 
-The **v1.0.0 release is currently a draft**, visible to repository maintainers.
-It has not been published or marked Latest. Once published, downloads will be
-available on the [Releases page](https://github.com/collinswakholi/hopbox-infer/releases).
+Download **v1.0.0** from the
+[latest release](https://github.com/collinswakholi/hopbox-infer/releases/latest).
 
 - Use `HopBox-Infer-Setup-1.0.0.exe` for the installer wizard. Choose the destination
   and shortcut options; Program Files is suggested and elevation is requested
@@ -62,7 +61,7 @@ builds and checks source without publishing releases. Full photo/GPU/VM acceptan
 remains separate from hosted CI. [Workspace guide](docs/WORKSPACE.md).
 
 Private datasets, virtual environments, raw endpoint logs, runtime binaries and
-large model artifacts are excluded from source control. The draft's checksum-pinned
+large model artifacts are excluded from source control. The release's checksum-pinned
 build-input archive supplies the exact deployment models and runtime seeds.
 The source license and notices accompany the tested binary assets unchanged.
 

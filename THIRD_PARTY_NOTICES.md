@@ -24,6 +24,6 @@ Model asset names, sizes and SHA-256 hashes are listed in
 `docs/build-inputs-1.0.0.json`. The custom potato model and private test photos are
 not release assets. Training photos are not needed for normal inference.
 
-The 1.0.0 release is prepared as a **draft**. Its tested binaries are unchanged;
+The 1.0.0 release retains the tested binaries unchanged;
 download the accompanying license asset and this source revision with them.
 The public validation summary describes remaining hardware and startup limits.
