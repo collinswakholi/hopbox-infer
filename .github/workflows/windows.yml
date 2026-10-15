@@ -1,0 +1,91 @@
+name: Windows build and validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      retain_distribution:
+        description: Build package from public release inputs and retain it as an artifact
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-validation:
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          lfs: false
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Install pinned build and reference dependencies
+        run: |
+          python -m venv .build-env
+          .build-env/Scripts/python.exe -m pip install -r requirements-validation.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+          New-Item -ItemType Directory -Force validation | Out-Null
+      - name: Compile baseline x64 Rust components
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vsPath) { throw 'MSVC tools not found' }
+          Import-Module (Join-Path $vsPath 'Common7/Tools/Microsoft.VisualStudio.DevShell.dll')
+          Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments '-arch=x64 -host_arch=x64'
+          & ./tools/build_native.ps1
+      - name: Compile C# launcher, diagnostics, setup and picker
+        run: .build-env/Scripts/python.exe -B tools/check_windows_sources.py
+      - name: Numerical, allocation and adapter checks
+        run: |
+          foreach ($check in @('test_rust_science.py','test_postprocess.py','test_memory_recovery.py','test_gpu_selection.py')) {
+            & .build-env/Scripts/python.exe -B (Join-Path tools $check)
+            if ($LASTEXITCODE -ne 0) { throw ('Failed: ' + $check) }
+          }
+      - name: Retain validation summaries
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-validation
+          path: |
+            validation/*.json
+            validation/rust-ports/*.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Stage public inputs for a manually requested package
+        if: github.event_name == 'workflow_dispatch' && inputs.retain_distribution
+        run: python tools/prepare_build_inputs.py --download
+      - name: Build and audit manually requested package
+        if: github.event_name == 'workflow_dispatch' && inputs.retain_distribution
+        run: |
+          .build-env/Scripts/python.exe -B tools/build_release.py
+          if ($LASTEXITCODE -ne 0) { throw 'Packaging failed' }
+          .build-env/Scripts/python.exe -B tools/audit_release.py
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime audit failed' }
+          .build-env/Scripts/python.exe -B tools/test_installer.py
+          if ($LASTEXITCODE -ne 0) { throw 'Installer regression failed' }
+      - name: Retain manually requested distribution
+        if: github.event_name == 'workflow_dispatch' && inputs.retain_distribution
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: HopBox-Infer-Windows-rebuild
+          path: |
+            release/*.exe
+            release/*.zip
+            release/SHA256SUMS.txt
+          retention-days: 7

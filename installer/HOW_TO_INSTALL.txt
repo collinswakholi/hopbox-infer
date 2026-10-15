@@ -1,0 +1,81 @@
+HopBox Infer 1.0.0 - offline Windows installation
+
+STARTUP AND ENDPOINT SECURITY
+If Cortex blocks this application, have your IT/security team review the exact
+file hash and detection in Cortex/WildFire. The author name in file properties
+is not a verified digital signature. This build may require IT approval.
+Disabling endpoint protection does not repair files already quarantined.
+Do not add a blanket Python/folder exclusion. Use the reviewed complete package
+after IT resolves the detection. SECURITY_AND_STARTUP.md explains the evidence.
+
+The launcher checks required files before starting and identifies missing or
+altered components. For a complete local file-integrity report, run:
+  "C:\Program Files\HopBox-Infer\HopBox-Infer.exe" --diagnose
+Reports and recent startup-*.log files are written to the HopBox-Infer user-data
+directory below. Nothing is uploaded and no security setting is changed.
+If file integrity passes but GPU initialization fails, an explicit CPU test is:
+  "C:\Program Files\HopBox-Infer\HopBox-Infer.exe" --cpu
+This selects CPU for that launch. It does not repair a quarantined installation.
+GPU selection remains available in the app. The new startup logs capture Python
+tracebacks and native fault stacks; the error dialog includes the exact exit code.
+
+INSTALL
+1. Close HopBox Infer, then double-click HopBox-Infer-Setup-1.0.0.exe.
+2. Choose an installation folder with Browse, or type the full path.
+   Suggested: C:\Program Files\HopBox-Infer. Use a location your administrator
+   permits. Windows may request administrator consent to write to that folder.
+   Choose an empty dedicated folder or an existing HopBox Infer installation.
+3. Core is required: it includes CPU and DirectML for compatible Intel, AMD Radeon
+   and NVIDIA DirectX 12 GPUs. The installer shows detected adapters. The same
+   package works across these vendors; no extra GPU pack or CUDA installation
+   is needed. Choose your GPU or CPU in the app's device list.
+4. Click Install. After it finishes, use the desktop/Start menu shortcut or
+   HopBox-Infer.exe in the chosen folder. The app normally runs as your user.
+
+An administrator's application execution rules still apply. If the chosen folder
+or unsigned EXE is blocked, your administrator must approve the location/application.
+The installer does not bypass these rules or silently choose LocalAppData.
+
+PORTABLE OPTION
+Extract HopBox-Infer-1.0.0-Windows.zip into an approved location. Open
+HopBox-Infer\HopBox-Infer.exe. Keep the complete folder together; do not run from
+inside a ZIP. No separate vendor-specific GPU pack is required.
+
+REQUIREMENTS AND CONTENTS
+Windows 10/11 x64; a browser for the local interface. No system Python, Rust,
+PyTorch, Ultralytics, Numba or Taichi installation is needed. Installation and
+processing work offline. Microsoft C++ runtime DLLs are included.
+HopBox code is compiled into app\hopbox-code.zip; editable application source,
+training scripts and development environments are excluded. The private Python
+runtime and required third-party packages remain because the UI and orchestration
+use Python. Bytecode packaging is not source encryption.
+Intel and NVIDIA have been tested. AMD Radeon uses DirectML but has not been
+verified on physical AMD hardware; a compatible DirectX 12 driver is required.
+
+FIRST RUN
+Import photos, choose an output folder, and press Run Folders. Start with batch 1;
+batches 2/4/8 need more memory and may not be faster. Neural inference uses the
+selected device; Rust performs color correction and scientific features.
+
+USER DATA AND MODELS
+Settings, logs, imported models and temporary caches are stored separately in
+%LOCALAPPDATA%\HopBox-Infer. HOPBOX_STATE_ROOT can specify another writable data
+location. The install folder does not need to be writable during normal use.
+Outputs are saved in the output folder you select; original photos remain intact.
+Load FP32 ONNX with adjacent JSON metadata and assign class roles. A .pt checkpoint
+requires the separate exporter described in app\DEPLOYMENT.md; export tools and
+Torch/Ultralytics are never bundled. BUILD.md explains how to rebuild the EXE.
+
+UPGRADE / REMOVE / TROUBLESHOOT
+An upgrade preserves the prior installation in a sibling .previous folder. Remove
+that backup after checking the new installation. If migrating from an older build,
+keep custom models under its app\models\imported and classmap.json until copied
+into the new user-data folder. Uninstall by closing the app, deleting its install
+folder and removing its shortcuts. Keep your outputs and user data as needed.
+Check %LOCALAPPDATA%\HopBox-Infer\HopBox.log for startup errors (or HOPBOX_STATE_ROOT).
+Choose CPU if a graphics driver causes problems. Run one installation at a time.
+
+AUTOMATED INSTALL
+HopBox-Infer-Setup-1.0.0.exe --quiet --no-launch --install-dir "C:\Approved Apps\HopBox-Infer" --components core
+Quiet mode requires an explicit location and existing permission to write there;
+it never silently elevates.

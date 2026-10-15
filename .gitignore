@@ -13,6 +13,22 @@ build/
 venv/
 env/
 ENV/
+.build-env/
+.build-tmp/
+.archive/
+release/
+validation/
+app/models/
+app/runtime/
+app/cache/
+app/native/*.dll
+app/native/*.lib
+app/native/*.exe
+app/native/color-aot/
+installer/python-seed/
+installer/rtx-seed/
+installer/vc-runtime/*.dll
+HopBox.log
 
 # Data directories (not needed in repo)
 Data/
@@ -49,3 +65,5 @@ Hop_Inst_Seg/
 
 # OS
 Thumbs.db
+app/native/*.pdb
+app/native/*.exp

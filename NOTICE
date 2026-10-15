@@ -1,0 +1,11 @@
+HopBox Infer
+Copyright (C) 2026 Collins Wakholi
+https://github.com/collinswakholi/hopbox-infer
+
+Original HopBox application code is licensed under GNU AGPL version 3 only
+(SPDX: AGPL-3.0-only). See LICENSE. Third-party components and model artifacts
+retain their own copyrights and license terms; see THIRD_PARTY_NOTICES.md.
+
+The 1.0.0 draft preserves the tested installer and portable ZIP unchanged.
+License texts and corresponding application source accompany those downloads
+as release assets and in this repository. No warranty is provided.

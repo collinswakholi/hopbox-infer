@@ -1,105 +1,82 @@
-# HopBox Inference
+# HopBox Infer
 
-Automated hop instance segmentation and feature extraction using YOLOv8.
+Offline Windows x64 hop segmentation, chart color correction, QR/OCR and
+scientific feature extraction by [Collins Wakholi](https://github.com/collinswakholi).
+Version **1.0.0**, developed October 14, 2026.
 
-## Overview
+![HopBox Infer logo](app/hopbox/static/branding/hopbox.png)
 
-This repository contains an inference pipeline for analyzing hop images using a trained YOLOv8 segmentation model. It performs:
-- Object detection and segmentation (ColorCard, Hops, QR codes)
-- Color correction using reference color cards
-- QR code reading and OCR fallback
-- Feature extraction from detected hops
-- Batch processing of multiple image folders
+The app uses ONNX Runtime CPU/DirectML and Rust numerical kernels. It includes
+its own private Python runtime and needs no system Python or network connection.
+The installed app contains no Torch, Ultralytics, EasyOCR package, SciPy,
+scikit-image, Numba or Taichi.
 
-## Quick Start with Docker
+## Download and install
 
-### Pull and Run
+The **v1.0.0 release is currently a draft**, visible to repository maintainers.
+It has not been published or marked Latest. Once published, downloads will be
+available on the [Releases page](https://github.com/collinswakholi/hopbox-infer/releases).
 
-```bash
-# Pull the pre-built image from Docker Hub
-docker pull collins137/hopboxinfer:latest
+- Use `HopBox-Infer-Setup-1.0.0.exe` for the installer wizard. Choose the destination
+  and shortcut options; Program Files is suggested and elevation is requested
+  only when needed.
+- Or extract `HopBox-Infer-1.0.0-Windows.zip` and open `HopBox-Infer.exe`. Keep the
+  complete folder together.
+- Download the accompanying license archive, read `HOW_TO_INSTALL.txt`, and
+  verify downloads using `SHA256SUMS.txt` and PowerShell `Get-FileHash`.
 
-# Run inference (CPU)
-docker run --rm \
-  -v "/path/to/your/images:/data/input" \
-  -v "/path/to/save/results:/data/output" \
-  collins137/hopboxinfer:latest
+Core includes both CPU and DirectML. No vendor-specific GPU pack is required.
+Auto prefers a discrete GPU. Physical AMD Radeon execution remains unvalidated;
+DirectML selection checks are not hardware certification. The unsigned final
+launcher was blocked by Cortex on one managed RTX 4090 machine, although fresh
+installation and upgrade passed. See [startup guidance](SECURITY_AND_STARTUP.md).
 
-# Run inference (GPU - Linux/WSL2 with NVIDIA GPU)
-docker run --rm --gpus all \
-  -v "/path/to/your/images:/data/input" \
-  -v "/path/to/save/results:/data/output" \
-  collins137/hopboxinfer:latest
-```
+## Use the app
 
-### Customize Parameters
+Import photo folders, select the folders/images to process, preview detections
+and correction, then use **Run Folders**. Start with batch 1; larger batches
+1/2/4/8 need more memory and do not necessarily improve complete-folder speed.
+The app writes traits to `Features.csv` and saves image previews beside results.
 
-```bash
-docker run --rm --gpus all \
-  -e BATCH_SIZE=8 \
-  -e CONF=0.4 \
-  -e IMGSZ=1024 \
-  -v "/path/to/images:/data/input" \
-  -v "/path/to/results:/data/output" \
-  collins137/hopboxinfer:latest
-```
+The defaults are image size 2048, confidence 0.58 and IoU 0.75. Inference uses
+FP32 on CPU/GPU. Rust performs color processing, NMS, mask sampling and scientific
+feature kernels. Scientific migration and cross-device differences are explained
+in the [validation summary](docs/VALIDATION_1.0.0.md).
 
-**Available Environment Variables:**
-- `BATCH_SIZE` (Default: 4) - Number of images processed per batch
-- `CONF` (Default: 0.58) - Confidence threshold for detections
-- `IMGSZ` (Default: 2048) - Input image size
-- `DEVICE` (Default: auto) - Device to use (`0`, `cpu`, etc.)
+Load another segmentation model as an ONNX graph with adjacent JSON class,
+preprocessing and checksum metadata. Class roles are assigned in the app.
+External `.pt` conversion is optional and requires a separate development
+Torch/Ultralytics environment; those packages are never imported by the app.
+See [deployment and model instructions](app/DEPLOYMENT.md).
 
-## Local Development
+Installations can be read-only. Settings, logs, caches and imported models live
+under `%LOCALAPPDATA%/HopBox-Infer`, or `HOPBOX_STATE_ROOT`. The native splash
+waits for models, and startup retries once on CPU after an early native GPU
+access violation. `--cpu` selects CPU explicitly; `--diagnose` checks all files.
 
-### Requirements
-- Python 3.11+
-- CUDA 12.1+ (for GPU support)
+## Build and validate
 
-### Installation
+See [BUILD.md](BUILD.md) for Windows compilers, pinned dependencies, model/runtime
+input staging and EXE packaging. The [Windows workflow](.github/workflows/windows.yml)
+builds and checks source without publishing releases. Full photo/GPU/VM acceptance
+remains separate from hosted CI. [Workspace guide](docs/WORKSPACE.md).
 
-```bash
-pip install -r requirements.txt
-```
+Private datasets, virtual environments, raw endpoint logs, runtime binaries and
+large model artifacts are excluded from source control. The draft's checksum-pinned
+build-input archive supplies the exact deployment models and runtime seeds.
+The source license and notices accompany the tested binary assets unchanged.
 
-### Usage
+## Previous Docker version
 
-```bash
-python inference_final.py \
-  --input-dir "/path/to/images" \
-  --output-dir "/path/to/results" \
-  --batch-size 4 \
-  --conf 0.58
-```
-
-## Repository Structure
-
-```
-.
-├── inference_final.py      # Main inference script
-├── functions.py            # Helper functions (color correction, QR reading, feature extraction)
-├── requirements.txt        # Python dependencies
-├── models/
-│   └── best.pt            # Trained YOLOv8 model
-├── Dockerfile             # Docker image definition
-└── README_DOCKER.md       # Detailed Docker instructions
-```
-
-## Output
-
-The script generates:
-- `Features.csv` - Extracted features for all detected hops
-- `Image_Predictions/` - Cropped images of detected objects
-- `Results_*/` - YOLO prediction visualizations
-
-## CI/CD
-
-This repository uses GitHub Actions to automatically build and push Docker images to Docker Hub on every push to the main branch.
-
-## Docker Hub
-
-Pre-built image available at: `collins137/hopboxinfer:latest`
+The older Docker/PyTorch application is preserved at
+[`legacy-docker-2026-10-15`](https://github.com/collinswakholi/hopbox-infer/tree/legacy-docker-2026-10-15)
+(commit `15d0729`). Its Docker instructions and Git LFS model pointers remain
+available there. Existing Docker images were not modified. This Windows release
+does not replace Docker Hub's image with a different platform artifact.
 
 ## License
 
-[Add your license here]
+Original HopBox source: **GNU AGPL-3.0-only**, Copyright (C) 2026 Collins Wakholi.
+See [LICENSE](LICENSE), [NOTICE](NOTICE), and
+[third-party/model notices](THIRD_PARTY_NOTICES.md). Third-party components and
+trained model terms remain applicable.
