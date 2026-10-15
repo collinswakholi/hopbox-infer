@@ -4,6 +4,12 @@ This is a curated summary of local records from October 14-15, 2026. Private
 photos, SSH details, machine identifiers and raw endpoint logs are not published.
 The release contains the tested binaries; publishing source/docs did not rebuild them.
 
+The later [public GitHub download VM test](VM_DOWNLOAD_VALIDATION_1.0.0.md)
+completed GPU batches 1/2/4/8 and CPU batches 1/2, plus custom-model, integrity,
+startup and shutdown checks. Every run processed 11 photos and produced 110 rows;
+CSV bytes matched the appropriate CPU or NVIDIA reference. See that report for
+the exact scope, timing and hardware limits.
+
 | Check | Result and scope |
 | --- | --- |
 | Actual Windows EXE, batches 1/2/4/8 | All 11 `119CANON` photos, 110 output rows each; every CSV byte matched the NVIDIA reference. Extra hop on IMG_0002 and QR fallback case on IMG_0003 are included. |

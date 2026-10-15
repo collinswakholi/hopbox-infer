@@ -2,7 +2,7 @@
 from pathlib import Path
 import ast,dis,json,marshal,zipfile
 import pefile
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 forbidden=('torch','torchvision','torchaudio','ultralytics','easyocr','libtorch','c10','scipy','skimage','scikit_image','taichi','numba','llvmlite')
 records=[]
 application=ROOT/'release/HopBox-Infer/app'

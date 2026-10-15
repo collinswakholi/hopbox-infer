@@ -2,7 +2,7 @@
 from pathlib import Path
 import hashlib, json
 import onnx
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 records=[]
 paths=list((ROOT/'app/models/portable').rglob('*.onnx'))+[ROOT/'validation/potato-model/best_s_1024_fp32.onnx']
 for path in paths:

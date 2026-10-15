@@ -1,0 +1,4 @@
+# Optional, documentation-only. Never included in the packaged app.
+reportlab==4.4.9
+Pillow==12.3.0
+pypdf==6.10.0

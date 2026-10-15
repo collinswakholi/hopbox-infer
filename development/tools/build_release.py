@@ -1,7 +1,7 @@
 """Build the validated offline Windows CPU/DirectML app."""
 from pathlib import Path
 import argparse,hashlib,json,os,py_compile,shutil,subprocess,sys,tempfile,zipfile
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 BRANDING=json.loads((ROOT/'app/hopbox/branding.json').read_text())
 VERSION=BRANDING['version']
 csc=Path(r'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe')
@@ -11,12 +11,12 @@ identity.write_text('using System.Reflection;\n'+f'[assembly: AssemblyVersion("{
 logo=ROOT/'app/hopbox/static/branding/hopbox.png'
 icon=ROOT/'app/hopbox/static/branding/hopbox.ico'
 def compile_cs(source,target,extra=()):
-    subprocess.run([str(csc),'/nologo','/codepage:65001','/target:winexe','/optimize+',f'/win32manifest:{ROOT / "installer/app.manifest"}','/r:System.Windows.Forms.dll','/r:System.Drawing.dll','/r:System.Web.Extensions.dll',f'/win32icon:{icon}',f'/resource:{logo},HopBoxLogo',f'/out:{target}',*extra,str(identity),str(source)],check=True)
+    subprocess.run([str(csc),'/nologo','/codepage:65001','/target:winexe','/optimize+',f'/win32manifest:{ROOT / "development/installer/app.manifest"}','/r:System.Windows.Forms.dll','/r:System.Drawing.dll','/r:System.Web.Extensions.dll',f'/win32icon:{icon}',f'/resource:{logo},HopBoxLogo',f'/out:{target}',*extra,str(identity),str(source)],check=True)
 def compile_ui(core):
-    compile_cs(ROOT/'installer/Launcher.cs',core/'HopBox-Infer.exe',[str(ROOT/'installer/StartupDiagnostics.cs')])
+    compile_cs(ROOT/'development/installer/Launcher.cs',core/'HopBox-Infer.exe',[str(ROOT/'development/installer/StartupDiagnostics.cs')])
     subprocess.run([str(csc),'/nologo','/codepage:65001','/target:library','/optimize+','/r:System.Windows.Forms.dll','/r:System.Drawing.dll',f'/out:{core / "app/native/HopBoxNative.dll"}',str(ROOT/'app/hopbox/native_shell.cs')],check=True)
     manifest=json.loads((core/'application-manifest.json').read_text())
-    manifest['windows_ui']={'compiler_codepage':'65001','launcher_source_sha256':hashlib.sha256((ROOT/'installer/Launcher.cs').read_bytes()).hexdigest(),'diagnostics_source_sha256':hashlib.sha256((ROOT/'installer/StartupDiagnostics.cs').read_bytes()).hexdigest(),'folder_picker_source_sha256':hashlib.sha256((ROOT/'app/hopbox/native_shell.cs').read_bytes()).hexdigest()}
+    manifest['windows_ui']={'compiler_codepage':'65001','launcher_source_sha256':hashlib.sha256((ROOT/'development/installer/Launcher.cs').read_bytes()).hexdigest(),'diagnostics_source_sha256':hashlib.sha256((ROOT/'development/installer/StartupDiagnostics.cs').read_bytes()).hexdigest(),'folder_picker_source_sha256':hashlib.sha256((ROOT/'app/hopbox/native_shell.cs').read_bytes()).hexdigest()}
     (core/'application-manifest.json').write_text(json.dumps(manifest,indent=2))
 
 def sign_owned(paths):
@@ -43,7 +43,7 @@ def write_file_inventory(core):
     (core/'package-files.json').write_text(json.dumps({'version':VERSION,'files':records,'purpose':'Detect missing, changed or quarantined files. Integrity hashes do not establish publisher trust.'},indent=2))
 
 def validate_crt_seed():
-    runtime=ROOT/'installer/vc-runtime'
+    runtime=ROOT/'development/installer/vc-runtime'
     records=json.loads((runtime/'inventory.json').read_text())
     for item in records:
         path=runtime/item['name']
@@ -61,9 +61,9 @@ def build_installer(output):
         expected=next(p for p in json.loads((output/'inventory.json').read_text()) if p['name']==name)
         if digest!=expected['sha256']:raise ValueError('Payload checksum mismatch: '+name)
         setup_args.append(f'/resource:{archive},{resource}');records.append({'name':name,'sha256':digest})
-    compile_cs(ROOT/'installer/Setup.cs',output/f'HopBox-Infer-Setup-{VERSION}.exe',setup_args)
+    compile_cs(ROOT/'development/installer/Setup.cs',output/f'HopBox-Infer-Setup-{VERSION}.exe',setup_args)
     sign_owned([output/f'HopBox-Infer-Setup-{VERSION}.exe'])
-    (output/'installer-build.json').write_text(json.dumps({'setup_source_sha256':hashlib.sha256((ROOT/'installer/Setup.cs').read_bytes()).hexdigest(),'payloads':records},indent=2))
+    (output/'installer-build.json').write_text(json.dumps({'setup_source_sha256':hashlib.sha256((ROOT/'development/installer/Setup.cs').read_bytes()).hexdigest(),'payloads':records},indent=2))
     checksums=[]
     for file in sorted(output.iterdir()):
         if file.suffix.lower() in ('.exe','.zip'):
@@ -89,7 +89,7 @@ if not args.repack:
     if core.exists():raise FileExistsError('Archive the prior release before rebuilding')
     core.mkdir()
     python=core/'python';python.mkdir()
-    seed=ROOT/'installer/python-seed'
+    seed=ROOT/'development/installer/python-seed'
     for file in seed.iterdir():
         if file.is_file():shutil.copy2(file,python/file.name)
     # Include the C++ standard library needed by ONNX Runtime on clean Windows.
@@ -129,14 +129,14 @@ if not args.repack:
     shutil.copytree(ROOT/'app/hopbox/static',app/'hopbox/static',ignore=shutil.ignore_patterns('hopbox-source.png','__pycache__'))
     shutil.copy2(ROOT/'app/hopbox/branding.json',app/'hopbox/branding.json')
     (core/'application-manifest.json').write_text(json.dumps({'format':'python312-sourceless-zip','modules':compiled,'note':'Bytecode packaging removes editable source, not the private Python runtime. It is not source encryption.'},indent=2))
-    shutil.copy2(ROOT/'BUILD.md',core/'BUILD.md')
+    shutil.copy2(ROOT/'development/BUILD.md',core/'BUILD.md')
     shutil.copytree(ROOT/'app/models/portable',app/'models/portable',ignore=shutil.ignore_patterns('__pycache__','rtx-cache'))
     shutil.copytree(ROOT/'app/resources',app/'resources')
     shutil.copytree(ROOT/'app/native',app/'native',ignore=shutil.ignore_patterns('*.pdb','*.lib','*.exp','color-aot'))
     for file in runtime.glob('*.dll'):shutil.copy2(file,app/'native'/file.name)
     shutil.copy2(runtime/'inventory.json',core/'vc-runtime-inventory.json')
     compile_ui(core)
-    installation=ROOT/'installer/HOW_TO_INSTALL.txt'
+    installation=ROOT/'development/installer/HOW_TO_INSTALL.txt'
     shutil.copy2(installation,out/'HOW_TO_INSTALL.txt')
     shutil.copy2(installation,core/'HOW_TO_INSTALL.txt')
     model=app/'models/portable/hops_fp32.json'
@@ -148,9 +148,9 @@ else:
         relative='main.py' if item['module']=='hopbox_entry.py' else item['module']
         source=ROOT/'app'/relative
         if hashlib.sha256(source.read_bytes()).hexdigest()!=item['source_sha256']:raise ValueError('Application source changed; use a full build: '+relative)
-    shutil.copy2(ROOT/'installer/HOW_TO_INSTALL.txt',core/'HOW_TO_INSTALL.txt')
-    shutil.copy2(ROOT/'installer/HOW_TO_INSTALL.txt',out/'HOW_TO_INSTALL.txt')
-    shutil.copy2(ROOT/'BUILD.md',core/'BUILD.md')
+    shutil.copy2(ROOT/'development/installer/HOW_TO_INSTALL.txt',core/'HOW_TO_INSTALL.txt')
+    shutil.copy2(ROOT/'development/installer/HOW_TO_INSTALL.txt',out/'HOW_TO_INSTALL.txt')
+    shutil.copy2(ROOT/'development/BUILD.md',core/'BUILD.md')
     shutil.copy2(ROOT/'app/DEPLOYMENT.md',core/'app/DEPLOYMENT.md')
     compile_ui(core)
 sign_owned([core/'HopBox-Infer.exe',*(core/'app/native'/name for name in ('ccp-engine.exe','color_cpu.dll','postprocess.dll','science.dll','HopBoxNative.dll'))])

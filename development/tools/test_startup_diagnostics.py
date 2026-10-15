@@ -5,7 +5,7 @@ import json
 import os
 import subprocess
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser()
 parser.add_argument('--package', type=Path, default=ROOT/'release/HopBox-Infer')
 args = parser.parse_args()

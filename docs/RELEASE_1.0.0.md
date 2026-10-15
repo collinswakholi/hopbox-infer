@@ -30,7 +30,7 @@ CPU/GPU differences from older measurements are described in
 
 Source is AGPL-3.0-only; third-party components and model terms are retained.
 `HopBox-Infer-1.0.0-Build-Inputs.zip` supplies the checksum-pinned models and
-private runtime seeds required for a source build. See [BUILD.md](../BUILD.md).
+private runtime seeds required for a source build. See [BUILD.md](../development/BUILD.md).
 These are build inputs; end users only need the installer or portable package.
 
 The old Docker/PyTorch version is preserved at

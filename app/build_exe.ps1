@@ -12,6 +12,6 @@ if (Test-Path -LiteralPath $releasePath) {
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $backupPath) | Out-Null
     Move-Item -LiteralPath $releasePath -Destination $backupPath
 }
-& (Join-Path $repoRoot 'tools\build_native.ps1')
-& $pythonPath tools/build_release.py
+& (Join-Path $repoRoot 'development\tools\build_native.ps1')
+& $pythonPath development/tools/build_release.py
 exit $LASTEXITCODE

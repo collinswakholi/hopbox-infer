@@ -2,7 +2,7 @@
 from pathlib import Path, PurePosixPath
 import argparse, hashlib, json, os, stat, tempfile, urllib.request, urllib.error, zipfile
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 
 class SafeRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -23,8 +23,8 @@ def download(manifest, target):
     try:
         with opener.open(urllib.request.Request(api+release_path,headers=headers),timeout=60) as response:release=json.load(response)
     except urllib.error.HTTPError as error:
-        if error.code==404:raise RuntimeError('Build inputs are in the draft v1.0.0 release. Set GH_TOKEN with private draft-release access, or download the archive as the owner and pass --archive PATH.') from None
-        if error.code==403:raise RuntimeError('GitHub denied access to the private draft asset. Use an owner-downloaded --archive. Hosted source CI stays read-only and does not fetch private draft inputs.') from None
+        if error.code==404:raise RuntimeError('Pinned build-input release or asset was not found. Check the release URL, or pass a checksum-matching local --archive PATH.') from None
+        if error.code==403:raise RuntimeError('GitHub denied the download or rate-limited this request. Download the published archive in a browser and pass --archive PATH. CI permissions remain read-only.') from None
         raise
     if release['tag_name']!=manifest['release_tag']:raise RuntimeError('Release identity differs from pinned manifest')
     assets=[a for a in release['assets'] if a['name']==manifest['asset']]
@@ -49,7 +49,8 @@ def main():
             relative=PurePosixPath(info.filename)
             if relative.is_absolute() or '..' in relative.parts or '\\' in info.filename or stat.S_ISLNK(info.external_attr>>16):raise ValueError('Unsafe archive entry')
             if not info.filename.startswith(('app/models/portable/','installer/python-seed/','installer/vc-runtime/')):raise ValueError('Unexpected build input destination')
-            target=ROOT.joinpath(*relative.parts)
+            destination=PurePosixPath('development')/relative if relative.parts[0]=='installer' else relative
+            target=ROOT.joinpath(*destination.parts)
             if not target.resolve().is_relative_to(ROOT):raise ValueError('Build input escapes checkout')
             for parent in [target,*target.parents]:
                 if parent==ROOT:break

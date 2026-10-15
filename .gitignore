@@ -18,6 +18,8 @@ ENV/
 .archive/
 release/
 validation/
+output/
+tmp/
 app/models/
 app/runtime/
 app/cache/
@@ -25,9 +27,9 @@ app/native/*.dll
 app/native/*.lib
 app/native/*.exe
 app/native/color-aot/
-installer/python-seed/
-installer/rtx-seed/
-installer/vc-runtime/*.dll
+development/installer/python-seed/
+development/installer/rtx-seed/
+development/installer/vc-runtime/*.dll
 HopBox.log
 
 # Data directories (not needed in repo)

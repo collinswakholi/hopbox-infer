@@ -2,7 +2,7 @@
 from pathlib import Path
 import importlib.util,json,sys,time,warnings
 import cv2,numpy as np,pandas as pd
-ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'app'))
+ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT/'app'))
 def reference(name,path,package=None):
     spec=importlib.util.spec_from_file_location(name,ROOT/'.archive/rust-port-reference-1.2.0/hopbox'/path)
     module=importlib.util.module_from_spec(spec)

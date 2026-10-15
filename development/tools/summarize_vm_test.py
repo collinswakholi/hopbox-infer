@@ -6,7 +6,7 @@ import hashlib
 import json
 import math
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 parser=argparse.ArgumentParser();parser.add_argument('--gpu',action='store_true');parser.add_argument('--area',type=Path);args=parser.parse_args()
 version=json.loads((ROOT/'app/hopbox/branding.json').read_text())['version']
 AREA = args.area.resolve() if args.area else ROOT/'validation'/f'vm-{version}'

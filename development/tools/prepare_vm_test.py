@@ -2,7 +2,7 @@
 from pathlib import Path
 import argparse,hashlib,json,shutil,xml.etree.ElementTree as xml
 parser=argparse.ArgumentParser();parser.add_argument('--gpu',action='store_true');parser.add_argument('--area',type=Path);parser.add_argument('--package-dir',type=Path,help='Directory containing a downloaded installer and branding.json; defaults to release');parser.add_argument('--interactive',action='store_true');parser.add_argument('--label-image',type=Path,help='Locally supplied custom-model label photo; not distributed');parser.add_argument('--batches',type=int,nargs='+',choices=[1,2,4,8],default=[8,4,2,1]);args=parser.parse_args()
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 version=json.loads((ROOT/'app/hopbox/branding.json').read_text())['version']
 package_dir=args.package_dir.resolve() if args.package_dir else ROOT/'release'
 installer=package_dir/f'HopBox-Infer-Setup-{version}.exe'
@@ -15,7 +15,7 @@ if args.gpu:area=area/'gpu'
 control=area/'control';results=area/'results'
 control.mkdir(parents=True,exist_ok=True);results.mkdir(exist_ok=True)
 for name in ('guest.ps1','audit_guest.ps1','check_startup_options.ps1'):
-    shutil.copy2(ROOT/'tools/vm'/name,control/name)
+    shutil.copy2(ROOT/'development/tools/vm'/name,control/name)
 for name in ('best_s_1024_fp32.onnx','best_s_1024_fp32.json'):
     shutil.copy2(ROOT/'validation/potato-model'/name,control/name)
 shutil.copy2(ROOT/'validation/installed-1.3-batch-1/119CANON/Features.csv',control/'reference.csv')

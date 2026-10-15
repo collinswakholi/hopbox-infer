@@ -2,7 +2,7 @@
 from pathlib import Path
 import argparse,json,sys,time
 import cv2,numpy as np
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'app'))
 from hopbox.inference.model_adapter import Model
 from hopbox.inference.decode import polygon

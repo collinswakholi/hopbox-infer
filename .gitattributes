@@ -1,10 +1,11 @@
 # Stable source bytes are required by the tested application provenance hashes.
 * text=auto eol=lf
 app/** -text whitespace=cr-at-eol
-installer/*.cs -text whitespace=cr-at-eol
-tests/references/*.py -text whitespace=cr-at-eol
+development/installer/*.cs -text whitespace=cr-at-eol
+development/tests/references/*.py -text whitespace=cr-at-eol
 *.png binary
 *.ico binary
+*.pdf binary
 # Legacy model pointers remain readable at the preserved Docker tag.
 *.pt filter=lfs diff=lfs merge=lfs -text
 *.pth filter=lfs diff=lfs merge=lfs -text

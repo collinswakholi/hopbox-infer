@@ -4,7 +4,7 @@ import ctypes as c
 from ctypes import wintypes as w
 import argparse,json,subprocess,time,zipfile,zlib
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 version=json.loads((ROOT/'app/hopbox/branding.json').read_text())['version']
 parser=argparse.ArgumentParser();parser.add_argument('--area',type=Path);args=parser.parse_args()
 area=args.area.resolve() if args.area else ROOT/'validation'/f'installer-regression-{version}';area.mkdir(exist_ok=True)

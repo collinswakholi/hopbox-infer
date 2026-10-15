@@ -63,7 +63,7 @@ class roles. The chosen image size is retained; use 1024 for a model trained at
 Conversion of `.pt` checkpoints runs in an external development environment:
 
 ```powershell
-venv\Scripts\python.exe tools\export_model_bundle.py C:\Models\custom.pt C:\Models\portable --imgsz 1024
+venv\Scripts\python.exe development\tools\export_model_bundle.py C:\Models\custom.pt C:\Models\portable --imgsz 1024
 ```
 
 To enable the same conversion from Load model, set these variables before
@@ -87,7 +87,7 @@ DirectX 12 Windows driver. Rust color processing and feature extraction use the
 CPU on every platform. Radeon has not been tested on local hardware.
 
 Rebuild with `app/build_exe.ps1` after preparing `.build-env` from
-`app/requirements.txt`. See `../BUILD.md` for compiler prerequisites, individual
+`app/requirements.txt`. See `../development/BUILD.md` for compiler prerequisites, individual
 build commands and clean offline EXE validation.
 The wrapper compiles all Rust DLLs and `ccp_bridge` with
 `--no-default-features`, preserving the chart handshake and fitting mathematics.

@@ -48,13 +48,13 @@ jobs:
           if (-not $vsPath) { throw 'MSVC tools not found' }
           Import-Module (Join-Path $vsPath 'Common7/Tools/Microsoft.VisualStudio.DevShell.dll')
           Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments '-arch=x64 -host_arch=x64'
-          & ./tools/build_native.ps1
+          & ./development/tools/build_native.ps1
       - name: Compile C# launcher, diagnostics, setup and picker
-        run: .build-env/Scripts/python.exe -B tools/check_windows_sources.py
+        run: .build-env/Scripts/python.exe -B development/tools/check_windows_sources.py
       - name: Numerical, allocation and adapter checks
         run: |
           foreach ($check in @('test_rust_science.py','test_postprocess.py','test_memory_recovery.py','test_gpu_selection.py')) {
-            & .build-env/Scripts/python.exe -B (Join-Path tools $check)
+            & .build-env/Scripts/python.exe -B (Join-Path development/tools $check)
             if ($LASTEXITCODE -ne 0) { throw ('Failed: ' + $check) }
           }
       - name: Retain validation summaries
@@ -69,15 +69,15 @@ jobs:
           retention-days: 14
       - name: Stage public inputs for a manually requested package
         if: github.event_name == 'workflow_dispatch' && inputs.retain_distribution
-        run: python tools/prepare_build_inputs.py --download
+        run: python development/tools/prepare_build_inputs.py --download
       - name: Build and audit manually requested package
         if: github.event_name == 'workflow_dispatch' && inputs.retain_distribution
         run: |
-          .build-env/Scripts/python.exe -B tools/build_release.py
+          .build-env/Scripts/python.exe -B development/tools/build_release.py
           if ($LASTEXITCODE -ne 0) { throw 'Packaging failed' }
-          .build-env/Scripts/python.exe -B tools/audit_release.py
+          .build-env/Scripts/python.exe -B development/tools/audit_release.py
           if ($LASTEXITCODE -ne 0) { throw 'Runtime audit failed' }
-          .build-env/Scripts/python.exe -B tools/test_installer.py
+          .build-env/Scripts/python.exe -B development/tools/test_installer.py
           if ($LASTEXITCODE -ne 0) { throw 'Installer regression failed' }
       - name: Retain manually requested distribution
         if: github.event_name == 'workflow_dispatch' && inputs.retain_distribution

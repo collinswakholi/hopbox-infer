@@ -17,7 +17,7 @@ import urllib.request
 import zipfile
 import psutil
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 package=ROOT/'release/HopBox-Infer'
 fixture=ROOT/'.build-tmp/native-recovery-fixture'
 area=ROOT/'validation/security-native-recovery'

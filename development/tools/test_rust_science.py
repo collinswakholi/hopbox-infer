@@ -2,14 +2,14 @@
 from pathlib import Path
 import importlib.util,json,sys,warnings,time
 import cv2,numpy as np
-ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'app'))
+ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT/'app'))
 (ROOT/'validation/rust-ports').mkdir(parents=True,exist_ok=True)
 from hopbox.inference.science import channel_features,lbp_image,connected_components,mask_roi,closest_contours
 from skimage.feature import local_binary_pattern
 from scipy.ndimage import label
-spec=importlib.util.spec_from_file_location('reference_features',ROOT/'tests/references/features_numpy.py')
+spec=importlib.util.spec_from_file_location('reference_features',ROOT/'development/tests/references/features_numpy.py')
 reference=importlib.util.module_from_spec(spec);spec.loader.exec_module(reference)
-spec=importlib.util.spec_from_file_location('reference_decode',ROOT/'tests/references/decode_numpy.py')
+spec=importlib.util.spec_from_file_location('reference_decode',ROOT/'development/tests/references/decode_numpy.py')
 decode=importlib.util.module_from_spec(spec);decode.__package__='hopbox.inference';spec.loader.exec_module(decode)
 rng=np.random.default_rng(13102026);records=[]
 images=[np.zeros((1,1),np.uint8),np.ones((1,1),np.uint8),np.full((50,60),180,np.uint8),np.zeros((40,35),np.uint8),np.arange(256,dtype=np.uint8).reshape(16,16)]

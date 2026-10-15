@@ -3,7 +3,7 @@ from pathlib import Path
 import argparse, csv, hashlib, json, os, subprocess, time, urllib.request, urllib.error
 import psutil
 
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 BRANDING=json.loads((ROOT/'app/hopbox/branding.json').read_text())
 VERSION=BRANDING['version']; PACKAGE=BRANDING['package']
 parser=argparse.ArgumentParser()
@@ -82,7 +82,7 @@ try:
     for name,count in (('119CANON',10),('Canon_test',30)):
         with (area/'multi-folder'/name/'Features.csv').open(newline='') as stream:
             if len(list(csv.DictReader(stream)))!=count:raise RuntimeError('Multi-folder output count changed')
-    model_check=[str(ROOT/'.build-env/Scripts/python.exe'),str(ROOT/'tools/test_model_loading_web.py'),'--port',str(args.port),'--default-model',str(target/'app/models/portable/hops_fp32.onnx')]
+    model_check=[str(ROOT/'.build-env/Scripts/python.exe'),str(ROOT/'development/tools/test_model_loading_web.py'),'--port',str(args.port),'--default-model',str(target/'app/models/portable/hops_fp32.onnx')]
     if args.label_image:model_check+=['--label-image',str(args.label_image)]
     if args.checkpoint:model_check+=['--checkpoint',str(args.checkpoint)]
     subprocess.run(model_check,check=True,timeout=180)

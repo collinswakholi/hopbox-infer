@@ -1,7 +1,7 @@
 """Custom model loading, cancellation, and model-aware preview cache checks."""
 from pathlib import Path
 import argparse,json,shutil,time,urllib.request,urllib.error
-ROOT=Path(__file__).resolve().parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=8767);parser.add_argument('--default-model',type=Path,default=ROOT/'release/HopBox-Infer/app/models/portable/hops_fp32.onnx');parser.add_argument('--label-image',type=Path,default=ROOT/'validation/potato-model/frame_000038.jpg');parser.add_argument('--checkpoint',type=Path,default=ROOT/'validation/potato-model/best_s_1024.pt');args=parser.parse_args()
 for fixture in (args.label_image,args.checkpoint,ROOT/'validation/potato-model/best_s_1024_fp32.onnx'):
     if not fixture.is_file():parser.error('Missing local acceptance fixture: '+str(fixture)+'; supply --label-image / --checkpoint and the custom ONNX fixture. See docs/WORKSPACE.md')
