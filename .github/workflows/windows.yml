@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       retain_distribution:
-        description: Retain this rebuild as an Actions artifact (does not publish a release)
+        description: Build package from public release inputs and retain it as an artifact
         type: boolean
         default: false
 
@@ -20,9 +20,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-check:
+  source-validation:
     runs-on: windows-2022
-    timeout-minutes: 45
+    timeout-minutes: 35
     defaults:
       run:
         shell: pwsh
@@ -35,10 +35,6 @@ jobs:
         with:
           python-version: '3.12.10'
           architecture: x64
-      - name: Verify and stage pinned model/runtime inputs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python tools/prepare_build_inputs.py --download
       - name: Install pinned build and reference dependencies
         run: |
           python -m venv .build-env
@@ -53,27 +49,14 @@ jobs:
           Import-Module (Join-Path $vsPath 'Common7/Tools/Microsoft.VisualStudio.DevShell.dll')
           Enter-VsDevShell -VsInstallPath $vsPath -SkipAutomaticLocation -DevCmdArguments '-arch=x64 -host_arch=x64'
           & ./tools/build_native.ps1
+      - name: Compile C# launcher, diagnostics, setup and picker
+        run: .build-env/Scripts/python.exe -B tools/check_windows_sources.py
       - name: Numerical, allocation and adapter checks
         run: |
           foreach ($check in @('test_rust_science.py','test_postprocess.py','test_memory_recovery.py','test_gpu_selection.py')) {
             & .build-env/Scripts/python.exe -B (Join-Path tools $check)
             if ($LASTEXITCODE -ne 0) { throw ('Failed: ' + $check) }
           }
-      - name: Compile C# and package the offline distribution
-        run: |
-          .build-env/Scripts/python.exe -B tools/build_release.py
-          if ($LASTEXITCODE -ne 0) { throw 'Packaging failed' }
-          .build-env/Scripts/python.exe -B tools/audit_release.py
-          if ($LASTEXITCODE -ne 0) { throw 'Runtime audit failed' }
-      - name: Installer and actual EXE integrity
-        run: |
-          .build-env/Scripts/python.exe -B tools/test_installer.py
-          if ($LASTEXITCODE -ne 0) { throw 'Installer regression failed' }
-          $report = Join-Path $PWD 'validation/ci-package-integrity.json'
-          $p = Start-Process -FilePath './release/HopBox-Infer/HopBox-Infer.exe' -ArgumentList @('--diagnose', ('"' + $report + '"')) -WindowStyle Hidden -Wait -PassThru
-          if ($p.ExitCode -ne 0) { throw ('Launcher diagnosis exit ' + $p.ExitCode) }
-          $result = Get-Content -LiteralPath $report -Raw | ConvertFrom-Json
-          if (-not $result.integrity_pass) { throw 'Package integrity failed' }
       - name: Retain validation summaries
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -84,6 +67,18 @@ jobs:
             validation/rust-ports/*.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Stage public inputs for a manually requested package
+        if: github.event_name == 'workflow_dispatch' && inputs.retain_distribution
+        run: python tools/prepare_build_inputs.py --download
+      - name: Build and audit manually requested package
+        if: github.event_name == 'workflow_dispatch' && inputs.retain_distribution
+        run: |
+          .build-env/Scripts/python.exe -B tools/build_release.py
+          if ($LASTEXITCODE -ne 0) { throw 'Packaging failed' }
+          .build-env/Scripts/python.exe -B tools/audit_release.py
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime audit failed' }
+          .build-env/Scripts/python.exe -B tools/test_installer.py
+          if ($LASTEXITCODE -ne 0) { throw 'Installer regression failed' }
       - name: Retain manually requested distribution
         if: github.event_name == 'workflow_dispatch' && inputs.retain_distribution
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

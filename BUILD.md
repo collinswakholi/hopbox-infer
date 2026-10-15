@@ -24,7 +24,7 @@ Or let the script download the pinned archive:
 py -3.12 tools/prepare_build_inputs.py --download
 ```
 
-While the release is draft, the download requires repository read access through
+While the release is draft, the download requires private draft-release access through
 `GH_TOKEN` / `GITHUB_TOKEN`, or an owner-downloaded local archive. Do not put
 credentials in source files. The script verifies checksums, rejects unexpected
 members/reparse points and refuses to overwrite differing existing inputs.
@@ -90,11 +90,17 @@ New-Item -ItemType Directory -Force validation | Out-Null
 & .\release\HopBox-Infer\HopBox-Infer.exe --diagnose
 ```
 
-These checks run on a fresh checkout with build inputs. Hosted Windows CI builds
-the worker, DLLs, C# launcher and installer, then runs numerical/memory/selection,
-installer rollback, package and integrity checks. Its synthetic checks do not
-claim photo parity or real GPU hardware coverage. Manual dispatch can retain the
-built distribution as an Actions artifact; it does not publish a GitHub Release.
+These checks run locally on a fresh checkout with build inputs. Hosted Windows
+CI remains **contents:read**: it compiles the Rust worker/DLLs and C# source and
+runs numerical/memory/selection checks without private model/runtime assets.
+Full installer/package/integrity validation of the private draft inputs is
+performed locally and recorded. The source-only C# outputs are explicitly
+labelled and have no distribution payload.
+
+After release inputs become public, manual dispatch with `retain_distribution`
+can build/audit the complete package and retain it as an Actions artifact. It
+does not publish a release. That option cannot fetch private draft inputs with
+the read-only Actions token; use the owner-downloaded archive locally instead.
 
 Full photo/UI/GPU/VM checks use local datasets, reference CSVs, a custom ONNX
 fixture and representative label photo. See `docs/WORKSPACE.md`, the arguments of
@@ -122,3 +128,4 @@ author, development date or profile link.
 
 See `docs/WORKSPACE.md` for which development folders to keep. Build inputs,
 virtual environments, private validation logs and distributions remain ignored.
+

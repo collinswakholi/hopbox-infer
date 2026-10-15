@@ -23,7 +23,8 @@ def download(manifest, target):
     try:
         with opener.open(urllib.request.Request(api+release_path,headers=headers),timeout=60) as response:release=json.load(response)
     except urllib.error.HTTPError as error:
-        if error.code==404:raise RuntimeError('Build inputs are in the draft v1.0.0 release. Set GH_TOKEN with repository read access, or download the archive as the owner and pass --archive PATH.') from None
+        if error.code==404:raise RuntimeError('Build inputs are in the draft v1.0.0 release. Set GH_TOKEN with private draft-release access, or download the archive as the owner and pass --archive PATH.') from None
+        if error.code==403:raise RuntimeError('GitHub denied access to the private draft asset. Use an owner-downloaded --archive. Hosted source CI stays read-only and does not fetch private draft inputs.') from None
         raise
     if release['tag_name']!=manifest['release_tag']:raise RuntimeError('Release identity differs from pinned manifest')
     assets=[a for a in release['assets'] if a['name']==manifest['asset']]
