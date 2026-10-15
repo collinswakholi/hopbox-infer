@@ -1,0 +1,1 @@
+"""HopBox desktop app."""

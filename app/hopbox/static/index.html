@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HopBox Infer</title>
+  <link rel="icon" href="/static/branding/hopbox.ico" sizes="any">
+  <link rel="stylesheet" href="/static/app.css?v=1.0.0">
+</head>
+<body>
+  <header class="top">
+    <div class="brand-row">
+      <div class="brand">
+        <img class="brand-icon" src="/static/branding/hopbox.png" alt="" width="40" height="40">
+        <h1><button id="about-open" class="brand-title" type="button" title="About HopBox Infer">HopBox Infer<span id="app-version">1.0.0</span></button></h1>
+        <p id="status" data-state="wait">Loading models</p>
+      </div>
+
+    </div>
+    <div class="toolbar">
+      <div class="preview-group" role="group" aria-label="Preview">
+        <button id="preview-chart" type="button" aria-pressed="false">Chart</button>
+        <button id="preview-corrected" class="primary" type="button" aria-pressed="false">Corrected</button>
+        <button id="show-plots" type="button" aria-pressed="false" disabled>Color plots</button>
+        <button id="preview-detections" type="button" aria-pressed="false">Detections</button>
+      </div>
+    </div>
+    <div class="top-end">
+      <p id="total" class="total">No photos</p>
+      <button id="exit" type="button">Exit</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <aside class="rail" id="rail">
+      <div class="import-block">
+        <div class="import-row">
+          <button id="open-browser" class="primary" type="button" title="Choose a folder. Hold Shift to browse inside HopBox Infer.">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5V19h18V7.5H12l-2-2.5H3z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            Import folder
+          </button>
+          <button id="clear-images" type="button" disabled>Clear images</button>
+        </div>
+      </div>
+      <div id="folders-pane" class="pane">
+        <div class="pane-head"><p class="kicker">Folders</p></div>
+        <ul id="tree" class="tree" aria-label="Imported folders"></ul>
+      </div>
+      <div id="split-lists" class="split split-row" role="separator" aria-orientation="horizontal" aria-label="Resize the folder list" aria-valuemin="64" aria-valuemax="800" aria-valuenow="240" title="Drag to resize the folder list" tabindex="0"></div>
+      <div id="photos-pane" class="pane">
+        <div class="pane-head">
+          <p class="kicker">Photos</p>
+          <p id="photo-folder" class="pane-note"></p>
+        </div>
+        <ul id="photos" class="photos" aria-label="Photos in the selected folder">
+          <li class="empty">Choose a folder.</li>
+        </ul>
+      </div>
+    </aside>
+    <div id="split-rail" class="split split-col" role="separator" aria-orientation="vertical" aria-label="Resize the folder panel" aria-valuemin="200" aria-valuemax="800" aria-valuenow="260" title="Drag to resize the folder panel" tabindex="0"></div>
+
+    <section class="stage" id="stage-well" aria-label="Preview">
+      <div id="stage-empty" class="stage-empty">
+        <svg class="stage-mark" viewBox="0 0 160 120" aria-hidden="true">
+          <path d="M22 40V16h24M114 16h24v24M138 80v24h-24M46 104H22V80" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="48" y="34" width="64" height="48" rx="8" fill="none" stroke="currentColor" stroke-width="3.2"/>
+          <path d="M66 34l5-10h18l5 10" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"/>
+          <circle cx="80" cy="58" r="13" fill="none" stroke="currentColor" stroke-width="3.2"/>
+          <circle cx="80" cy="58" r="4.5" fill="currentColor"/>
+        </svg>
+        <p>Select a photo to begin analysis</p>
+      </div>
+      <div id="stage-grid" class="stage-grid" hidden></div>
+      <button id="zoom-reset" type="button" hidden>Reset view</button>
+    </section>
+    <div id="split-inspector" class="split split-col" role="separator" aria-orientation="vertical" aria-label="Resize the run configuration" aria-valuemin="280" aria-valuemax="640" aria-valuenow="368" title="Drag to resize the run configuration" tabindex="0"></div>
+
+    <aside class="inspector">
+      <h2>Run settings</h2>
+      <div class="inspector-body">
+      <div class="group">
+      <label class="tool compute-tool" for="compute">Compute device
+        <select id="compute">
+          <option value="auto">Auto</option>
+        </select>
+      </label>
+        <p id="vram">Checking available devices</p>
+        <label class="stack">Batch size
+          <select id="batch-size"><option value="1" selected>1 photo</option><option value="2">2 photos</option><option value="4">4 photos</option><option value="8">8 photos</option></select>
+        </label>
+        <p class="hint">Larger batches use more memory. Reduce this if processing slows down.</p>
+        <div class="setting-grid">
+          <label class="stack">Image size <input id="imgsz" type="number" min="640" max="4096" step="64" value="2048"></label>
+          <label class="stack">Confidence % <input id="conf" type="number" min="1" max="99" value="58"></label>
+        </div>
+      </div>
+      <div class="group">
+        <label class="stack" for="method">Color method
+          <select id="method"><option value="ccm">CCM 3×3</option><option value="rpcc2">RPCC2</option><option value="rpcc3">RPCC3</option></select>
+        </label>
+        <div class="correction-checks">
+          <label class="check"><input id="gamma" type="checkbox" checked> Gamma correction</label>
+          <label class="check"><input id="wb" type="checkbox" checked> White balance</label>
+        </div>
+      </div>
+      <div class="group">
+        <label class="stack">Read labels
+          <select id="qr"><option value="off">Off</option><option value="qr">QR code only</option><option value="qr_ocr" selected>QR code, then printed text</option></select>
+        </label>
+      </div>
+      <div class="group">
+        <label class="stack">Output folder
+          <span class="output-row"><input id="output" type="text" spellcheck="false" placeholder="Choose where to save results"><button id="choose-output" type="button">Browse</button></span>
+        </label>
+        <label class="check"><input id="hops" type="checkbox" checked> Save hop outlines</label>
+      </div>
+      <details class="group model-group" id="model-group">
+        <summary>Detection model</summary>
+        <p id="model-name" class="model-name" title="hops_fp32.onnx">hops_fp32.onnx</p>
+        <p id="model-note" class="model-note" hidden></p>
+        <div class="model-actions"><button id="load-model" type="button">Load model</button><button id="edit-classes" type="button">Classes</button></div>
+      </details>
+      </div>
+      <div class="run-actions">
+      <button id="run" class="primary" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l8 4-8 4-8-4 8-4zM4 12l8 4 8-4M4 16.5l8 4 8-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        Run folders
+      </button>
+      <button id="stop" type="button" disabled>Stop</button>
+      </div>
+    </aside>
+  </div>
+
+  <section class="foot" aria-label="Run log">
+    <div class="meter" id="meter">
+      <div class="meter-row">
+        <p id="meter-label">Waiting</p>
+        <p id="meter-count" hidden></p>
+        <p id="meter-pct">0%</p>
+      </div>
+      <div class="track">
+        <div id="meter-fill" role="progressbar" aria-valuemin="0" aria-valuemax="10000" aria-valuenow="0" aria-label="Progress"></div>
+      </div>
+    </div>
+    <div class="console">
+      <div id="split-log" class="split split-row split-log" role="separator" aria-orientation="horizontal" aria-controls="log" aria-label="Resize the log" aria-valuemin="72" aria-valuemax="420" aria-valuenow="132" title="Drag to resize the log" tabindex="0"></div>
+      <div class="log-head">
+        <h2>Activity</h2>
+        <button id="clear-log" type="button">Clear</button>
+      </div>
+      <ol id="log" class="log" aria-live="polite">
+        <li class="empty"><time></time><span>Waiting for a job.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <dialog id="browser">
+    <form method="dialog" class="browser" id="browse-form">
+      <h2>Import folder</h2>
+      <label class="stack">Location
+        <input id="browse-path" class="path" type="text" spellcheck="false" aria-label="Folder location">
+      </label>
+      <div id="browse-crumbs" class="crumbs"></div>
+      <div id="browse-drives" class="drives"></div>
+      <div class="browser-actions">
+        <button type="button" id="browse-up">Up</button>
+        <button type="button" id="browse-go">Open</button>
+        <button type="button" id="browse-use" class="primary">Use this folder</button>
+        <button type="submit" value="cancel">Close</button>
+      </div>
+      <ul id="browse-list" class="browse-list"></ul>
+    </form>
+  </dialog>
+
+  <dialog id="exit-dialog">
+    <form method="dialog" class="browser exit-sheet">
+      <h2>Exit HopBox Infer</h2>
+      <p>This stops the current job, clears the preview cache, closes every running HopBox Infer, and closes this window. Photos and saved results stay where they are.</p>
+      <div class="browser-actions">
+        <button type="submit" value="cancel">Stay</button>
+        <button type="button" id="exit-confirm" class="primary">Exit</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="plots">
+    <div class="plots">
+      <div class="plots-head">
+        <h2>Color scatter — reference vs measured</h2>
+        <div class="browser-actions">
+          <button id="plots-export" type="button">Export</button>
+          <button id="plots-close" type="button">Close</button>
+        </div>
+      </div>
+      <canvas id="plot-scatter" aria-label="Color scatter"></canvas>
+      <div class="boards">
+        <section>
+          <h3>Original vs reference</h3>
+          <canvas id="plot-original"></canvas>
+        </section>
+        <section>
+          <h3>Corrected vs reference</h3>
+          <canvas id="plot-corrected"></canvas>
+        </section>
+      </div>
+      <p id="plot-count" class="hint"></p>
+    </div>
+  </dialog>
+
+  <dialog id="model-picker">
+    <form method="dialog" class="browser" id="model-picker-form">
+      <h2>Load detection model</h2>
+      <p class="hint">Choose an ONNX model with its JSON metadata. A .pt file can be converted when an external converter is configured.</p>
+      <label class="stack">Model file
+        <span class="output-row"><input id="model-file" type="text" spellcheck="false" placeholder="Paste a model path"><button id="browse-model" type="button">Browse</button></span>
+      </label>
+      <p id="model-load-message" role="status" class="hint" hidden></p>
+      <div class="browser-actions"><button type="submit" value="cancel">Cancel</button><button id="use-model" class="primary" type="button">Load</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="class-map">
+    <form method="dialog" class="browser class-sheet" id="class-map-form">
+      <h2>Name these classes</h2>
+      <p id="class-map-count" class="class-count"></p>
+      <p>Tell HopBox Infer which classes to measure. Only Measure classes go into the trait table.</p>
+      <div class="class-scroll">
+        <table class="class-table">
+          <thead><tr><th>#</th><th>Class</th><th>Name</th><th>Role</th></tr></thead>
+          <tbody id="class-map-body"></tbody>
+        </table>
+      </div>
+      <p id="class-map-warn" class="warn" hidden>No class is set to extract features. The CSV will have no trait rows.</p>
+      <div class="browser-actions">
+        <button type="submit" value="cancel">Cancel</button>
+        <button type="button" id="class-map-save" class="primary">Use this mapping</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="about-dialog">
+    <form method="dialog" class="browser about-sheet">
+      <img src="/static/branding/hopbox.png" alt="HopBox Infer logo" width="112" height="112">
+      <h2 id="about-name">HopBox Infer</h2>
+      <p id="about-author">Collins Wakholi</p>
+      <p id="about-version">Version 1.0.0</p>
+      <p id="about-developed">Developed: October 14, 2026</p>
+      <a id="about-github" href="https://github.com/collinswakholi" target="_blank" rel="noopener noreferrer">github.com/collinswakholi</a>
+      <div class="browser-actions"><button type="submit">Close</button></div>
+    </form>
+  </dialog>
+  <script src="/static/app.js?v=1.0.0"></script>
+</body>
+</html>
